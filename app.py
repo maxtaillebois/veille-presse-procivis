@@ -69,7 +69,7 @@ def inject_css():
 
 /* ARTICLE CARD */
 .article-card {{
-  background:white; border-radius:12px; padding:1.5rem; margin-bottom:1rem;
+  background:white; border-radius:12px; padding:1.5rem; margin-bottom:.5rem;
   box-shadow:0 2px 10px rgba(0,0,0,.06); border-left:4px solid {VERT_PROCIVIS};
   transition: box-shadow .2s, transform .2s;
 }}
@@ -90,19 +90,16 @@ def inject_css():
 .kw-badge.rose {{ background:{ROSE_BAILLEUR}; }}
 .kw-badge.bleu {{ background:{BLEU_PROMOTEUR}; }}
 
-/* CITATIONS */
+/* CITATIONS dans la carte */
 .citation-block {{
   background:{VERT_CLAIR}; border-radius:8px; padding:12px 16px;
   margin:6px 0; border-left:3px solid {VERT_PROCIVIS};
 }}
 .citation-kw {{ font-weight:600; color:{VERT_FONCE}; font-size:.85rem; }}
 .citation-text {{ font-size:.85rem; color:{GRIS_TEXTE}; font-style:italic; margin-top:4px; }}
+.citations-wrapper {{ margin-top:12px; }}
 
-/* SEND SECTION */
-.send-section {{
-  background:white; border-radius:16px; padding:2rem; margin-top:2rem;
-  box-shadow:0 2px 12px rgba(0,0,0,.06); border-top:4px solid {GRIS_PROCIVIS};
-}}
+/* SEND TITLE */
 .send-title {{ color:{GRIS_PROCIVIS}; font-size:1.3rem; font-weight:600; margin-bottom:1rem; }}
 
 /* BUTTONS */
@@ -113,6 +110,37 @@ def inject_css():
 .stButton>button[kind="primary"]:hover {{
   background:linear-gradient(135deg,{VERT_FONCE},#5E8A1E);
   box-shadow:0 4px 12px rgba(151,195,61,.35);
+}}
+
+/* CHECKBOX — couleur verte Procivis au lieu du noir par défaut */
+.stCheckbox > label > div[data-testid="stCheckboxBox"] {{
+  border-color: {VERT_PROCIVIS} !important;
+}}
+.stCheckbox > label > div[data-testid="stCheckboxBox"][aria-checked="true"] {{
+  background-color: {VERT_PROCIVIS} !important;
+  border-color: {VERT_PROCIVIS} !important;
+}}
+/* Fallback pour d'autres versions de Streamlit */
+.stCheckbox svg {{
+  fill: {VERT_PROCIVIS} !important;
+}}
+.stCheckbox input[type="checkbox"]:checked + div {{
+  background-color: {VERT_PROCIVIS} !important;
+  border-color: {VERT_PROCIVIS} !important;
+}}
+.stCheckbox label {{
+  font-weight: 500;
+  color: {GRIS_PROCIVIS};
+}}
+
+/* Compteur sélection — style unifié */
+.selection-count {{
+  background: {VERT_CLAIR}; border-left: 4px solid {VERT_PROCIVIS};
+  padding: 12px 16px; border-radius: 8px; font-size: .95rem;
+  color: {GRIS_PROCIVIS}; font-weight: 500;
+}}
+.selection-count.empty {{
+  background: #f0f0f0; border-left-color: #ccc; color: #999;
 }}
 
 /* HIDE BRANDING */
@@ -169,7 +197,7 @@ def available_weeks(df: pd.DataFrame) -> list[str]:
     return list(weeks)
 
 
-def col(row: pd.Series, *keys: str, default: str = "—") -> str:
+def col(row: pd.Series, *keys: str, default: str = "\u2014") -> str:
     for k in keys:
         val = row.get(k)
         if val is not None and str(val).strip():
@@ -182,14 +210,13 @@ def badge_color(idx: int) -> str:
     return colors[idx % len(colors)]
 
 
-def build_card_html(titre, media, date_pub, resume, mots_cles_str, is_selected):
-    """Construit le HTML d'une carte article — SANS indentation pour éviter
-    que Streamlit Markdown n'interprète les lignes comme des blocs de code."""
+def build_card_html(titre, media, date_pub, resume, mots_cles_str, contexte_str, is_selected):
+    """Construit le HTML complet d'une carte article (avec citations intégrées)."""
     sel = " selected" if is_selected else ""
 
     # Badges mots-clés
     badges = ""
-    if mots_cles_str and mots_cles_str not in ("—", ""):
+    if mots_cles_str and mots_cles_str not in ("\u2014", ""):
         kw_list = [k.strip() for k in mots_cles_str.split(",") if k.strip()]
         if kw_list:
             spans = "".join(
@@ -197,6 +224,26 @@ def build_card_html(titre, media, date_pub, resume, mots_cles_str, is_selected):
                 for i, kw in enumerate(kw_list)
             )
             badges = f'<div class="kw-badges">{spans}</div>'
+
+    # Citations intégrées dans la carte
+    citations = ""
+    if contexte_str and contexte_str not in ("\u2014", "[]", ""):
+        try:
+            ctx_data = json.loads(contexte_str)
+            if ctx_data:
+                blocks = ""
+                for item in ctx_data:
+                    kw = item.get("mot_cle", "")
+                    ctx = item.get("contexte", "")
+                    blocks += (
+                        f'<div class="citation-block">'
+                        f'<div class="citation-kw">{kw}</div>'
+                        f'<div class="citation-text">\u00ab\u00a0{ctx}\u00a0\u00bb</div>'
+                        f'</div>'
+                    )
+                citations = f'<div class="citations-wrapper">{blocks}</div>'
+        except (json.JSONDecodeError, TypeError):
+            pass
 
     html = (
         f'<div class="article-card{sel}">'
@@ -207,32 +254,10 @@ def build_card_html(titre, media, date_pub, resume, mots_cles_str, is_selected):
         f'</div>'
         f'<div class="article-resume">{resume}</div>'
         f'{badges}'
+        f'{citations}'
         f'</div>'
     )
     return html
-
-
-def build_citations_html(contexte_str):
-    """Construit le HTML des citations — sans indentation."""
-    if not contexte_str or contexte_str in ("—", "[]", ""):
-        return ""
-    try:
-        ctx_data = json.loads(contexte_str)
-        if not ctx_data:
-            return ""
-        parts = []
-        for item in ctx_data:
-            kw = item.get("mot_cle", "")
-            ctx = item.get("contexte", "")
-            parts.append(
-                f'<div class="citation-block">'
-                f'<div class="citation-kw">{kw}</div>'
-                f'<div class="citation-text">« {ctx} »</div>'
-                f'</div>'
-            )
-        return "".join(parts)
-    except (json.JSONDecodeError, TypeError):
-        return ""
 
 
 # ---------------------------------------------------------------------------
@@ -300,14 +325,14 @@ def main():
     nb_with_kw = 0
     for _, row in df_filtered.iterrows():
         kw = col(row, "mots_cles_trouves", "mots-clés trouvés", default="")
-        if kw and kw not in ("—", ""):
+        if kw and kw not in ("\u2014", ""):
             nb_with_kw += 1
 
     # Médias uniques
     medias = set()
     for _, row in df_filtered.iterrows():
         m = col(row, "media", "média")
-        if m != "—":
+        if m != "\u2014":
             medias.add(m)
 
     # --- Barre de stats ---
@@ -328,8 +353,21 @@ def main():
         st.info("Aucun article pour cette semaine.")
         return
 
-    # --- Sélection globale ---
-    select_all = st.checkbox("✅ Tout sélectionner", key="select_all")
+    # --- Construire la liste des index pour le "Tout sélectionner" ---
+    article_indices = list(df_filtered.index)
+
+    # Callback "Tout sélectionner" : force l'état de chaque checkbox
+    def on_select_all_change():
+        val = st.session_state["select_all"]
+        for i in article_indices:
+            st.session_state[f"art_{i}"] = val
+
+    st.checkbox(
+        "Tout sélectionner / désélectionner",
+        key="select_all",
+        on_change=on_select_all_change,
+    )
+
     selected_articles = []
 
     # --- Liste des articles ---
@@ -342,23 +380,19 @@ def main():
         contexte = col(row, "contexte_citations", "contexte citations", default="")
         drive_id = col(row, "id_fichier_drive", "id fichier drive", default="")
 
-        # Checkbox
-        checked = st.checkbox(
-            f"Sélectionner : {titre[:60]}",
-            value=select_all,
-            key=f"art_{idx}",
-            label_visibility="collapsed",
-        )
+        # Initialiser la session_state si pas encore fait
+        if f"art_{idx}" not in st.session_state:
+            st.session_state[f"art_{idx}"] = False
 
-        # Carte article
-        card_html = build_card_html(titre, media, date_pub, resume, mots_cles, checked)
+        # Carte article (avant la checkbox pour le visuel)
+        card_html = build_card_html(titre, media, date_pub, resume, mots_cles, contexte, st.session_state[f"art_{idx}"])
         st.markdown(card_html, unsafe_allow_html=True)
 
-        # Citations en expander
-        citations_html = build_citations_html(contexte)
-        if citations_html:
-            with st.expander("💬 Voir le contexte des citations"):
-                st.markdown(citations_html, unsafe_allow_html=True)
+        # Checkbox avec libellé visible
+        checked = st.checkbox(
+            f"Garder cet article",
+            key=f"art_{idx}",
+        )
 
         if checked:
             selected_articles.append({
@@ -385,41 +419,45 @@ def main():
     with col_nom:
         dest_nom = st.text_input("Nom du destinataire", value=DEFAULT_DEST_NOM)
 
-    col_count, col_send = st.columns([3, 1])
+    # Compteur sélection — style custom au lieu du warning illisible
     n_sel = len(selected_articles)
-    with col_count:
-        if n_sel == 0:
-            st.warning("Aucun article sélectionné.")
-        else:
-            st.success(f"🎯 {n_sel} article{'s' if n_sel > 1 else ''} sélectionné{'s' if n_sel > 1 else ''}")
+    if n_sel == 0:
+        st.markdown(
+            '<div class="selection-count empty">Aucun article sélectionné — cochez « Garder cet article » ci-dessus</div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            f'<div class="selection-count">🎯 {n_sel} article{"s" if n_sel > 1 else ""} sélectionné{"s" if n_sel > 1 else ""}</div>',
+            unsafe_allow_html=True,
+        )
 
-    with col_send:
-        disabled = n_sel == 0 or not dest_email
-        if st.button("📤 Envoyer", type="primary", use_container_width=True, disabled=disabled):
-            payload = {
-                "destinataire_email": dest_email,
-                "destinataire_nom": dest_nom,
-                "semaine": selected_week if selected_week != "Toutes" else current,
-                "articles_procivis": selected_articles,
-            }
-            with st.spinner("Envoi en cours via N8N…"):
-                try:
-                    resp = requests.post(N8N_WEBHOOK_URL, json=payload, timeout=120)
-                    if resp.status_code == 200:
-                        result = resp.json()
-                        if result.get("status") == "success":
-                            st.success("Mail envoyé avec succès !")
-                            st.balloons()
-                        else:
-                            st.error(f"Erreur N8N : {result.get('message', 'Erreur inconnue')}")
+    disabled = n_sel == 0 or not dest_email
+    if st.button("📤 Envoyer", type="primary", use_container_width=True, disabled=disabled):
+        payload = {
+            "destinataire_email": dest_email,
+            "destinataire_nom": dest_nom,
+            "semaine": selected_week if selected_week != "Toutes" else current,
+            "articles_procivis": selected_articles,
+        }
+        with st.spinner("Envoi en cours via N8N…"):
+            try:
+                resp = requests.post(N8N_WEBHOOK_URL, json=payload, timeout=120)
+                if resp.status_code == 200:
+                    result = resp.json()
+                    if result.get("status") == "success":
+                        st.success("Mail envoyé avec succès !")
+                        st.balloons()
                     else:
-                        st.error(f"Erreur HTTP {resp.status_code} : {resp.text[:300]}")
-                except requests.exceptions.Timeout:
-                    st.error("Le webhook N8N n'a pas répondu (timeout 120s).")
-                except requests.exceptions.ConnectionError:
-                    st.error("Impossible de contacter le webhook N8N. Vérifiez l'URL et que N8N est en ligne.")
-                except Exception as e:
-                    st.error(f"Erreur inattendue : {e}")
+                        st.error(f"Erreur N8N : {result.get('message', 'Erreur inconnue')}")
+                else:
+                    st.error(f"Erreur HTTP {resp.status_code} : {resp.text[:300]}")
+            except requests.exceptions.Timeout:
+                st.error("Le webhook N8N n'a pas répondu (timeout 120s).")
+            except requests.exceptions.ConnectionError:
+                st.error("Impossible de contacter le webhook N8N. Vérifiez l'URL et que N8N est en ligne.")
+            except Exception as e:
+                st.error(f"Erreur inattendue : {e}")
 
 
 if __name__ == "__main__":
