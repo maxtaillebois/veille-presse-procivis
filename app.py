@@ -112,25 +112,35 @@ def inject_css():
   box-shadow:0 4px 12px rgba(151,195,61,.35);
 }}
 
-/* CHECKBOX — couleur verte Procivis au lieu du noir par défaut */
-.stCheckbox > label > div[data-testid="stCheckboxBox"] {{
+/* CHECKBOX — vert Procivis, label toujours lisible */
+.stCheckbox label {{
+  font-weight: 500 !important;
+  color: {GRIS_PROCIVIS} !important;
+  opacity: 1 !important;
+}}
+.stCheckbox label span {{
+  color: {GRIS_PROCIVIS} !important;
+  opacity: 1 !important;
+}}
+.stCheckbox label p {{
+  color: {GRIS_PROCIVIS} !important;
+  opacity: 1 !important;
+}}
+/* Boîte de la checkbox */
+.stCheckbox [data-testid="stCheckbox"] > div:first-child {{
   border-color: {VERT_PROCIVIS} !important;
 }}
-.stCheckbox > label > div[data-testid="stCheckboxBox"][aria-checked="true"] {{
-  background-color: {VERT_PROCIVIS} !important;
-  border-color: {VERT_PROCIVIS} !important;
-}}
-/* Fallback pour d'autres versions de Streamlit */
 .stCheckbox svg {{
   fill: {VERT_PROCIVIS} !important;
+  color: {VERT_PROCIVIS} !important;
 }}
-.stCheckbox input[type="checkbox"]:checked + div {{
-  background-color: {VERT_PROCIVIS} !important;
+/* Versions récentes Streamlit */
+[data-testid="stCheckbox"] label div[role="checkbox"] {{
   border-color: {VERT_PROCIVIS} !important;
 }}
-.stCheckbox label {{
-  font-weight: 500;
-  color: {GRIS_PROCIVIS};
+[data-testid="stCheckbox"] label div[role="checkbox"][aria-checked="true"] {{
+  background-color: {VERT_PROCIVIS} !important;
+  border-color: {VERT_PROCIVIS} !important;
 }}
 
 /* Compteur sélection — style unifié */
@@ -384,15 +394,15 @@ def main():
         if f"art_{idx}" not in st.session_state:
             st.session_state[f"art_{idx}"] = False
 
-        # Carte article (avant la checkbox pour le visuel)
-        card_html = build_card_html(titre, media, date_pub, resume, mots_cles, contexte, st.session_state[f"art_{idx}"])
-        st.markdown(card_html, unsafe_allow_html=True)
-
-        # Checkbox avec libellé visible
+        # Checkbox AU-DESSUS de la carte, avec libellé toujours visible
         checked = st.checkbox(
-            f"Garder cet article",
+            "Garder cet article",
             key=f"art_{idx}",
         )
+
+        # Carte article
+        card_html = build_card_html(titre, media, date_pub, resume, mots_cles, contexte, checked)
+        st.markdown(card_html, unsafe_allow_html=True)
 
         if checked:
             selected_articles.append({
