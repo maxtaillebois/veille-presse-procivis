@@ -79,6 +79,7 @@ def inject_css():
 .article-meta {{ display:flex; align-items:center; gap:16px; margin-bottom:10px; flex-wrap:wrap; }}
 .meta-item {{ display:flex; align-items:center; gap:5px; font-size:.85rem; color:#888; }}
 .article-resume {{ font-size:.93rem; color:{GRIS_TEXTE}; line-height:1.6; margin-bottom:10px; }}
+.section-label {{ font-size:.75rem; text-transform:uppercase; letter-spacing:.5px; color:#999; font-weight:600; margin-bottom:4px; margin-top:12px; }}
 
 /* BADGES */
 .kw-badges {{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }}
@@ -251,7 +252,7 @@ def build_card_html(titre, media, date_pub, resume, mots_cles_str, contexte_str,
                         f'<div class="citation-text">\u00ab\u00a0{ctx}\u00a0\u00bb</div>'
                         f'</div>'
                     )
-                citations = f'<div class="citations-wrapper">{blocks}</div>'
+                citations = f'<div class="citations-wrapper"><div class="section-label">Contexte de citation</div>{blocks}</div>'
         except (json.JSONDecodeError, TypeError):
             pass
 
@@ -262,6 +263,7 @@ def build_card_html(titre, media, date_pub, resume, mots_cles_str, contexte_str,
         f'<div class="meta-item">📡 {media}</div>'
         f'<div class="meta-item">📅 {date_pub}</div>'
         f'</div>'
+        f'<div class="section-label">Résumé</div>'
         f'<div class="article-resume">{resume}</div>'
         f'{badges}'
         f'{citations}'
