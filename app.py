@@ -102,6 +102,22 @@ def main():
         layout="wide",
     )
 
+    # Thème Procivis (intégré dans le code, pas besoin de .streamlit/config.toml)
+    st.markdown("""
+    <style>
+        :root {
+            --primary-color: #0055A4;
+        }
+        .stButton>button[kind="primary"] {
+            background-color: #0055A4;
+            border-color: #0055A4;
+        }
+        .stSelectbox label, h1, h3 {
+            color: #262730;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
     # --- En-tête ---
     st.title("📰 Veille presse — Procivis")
     st.caption("Consultez les articles analysés par l'IA, sélectionnez ceux à conserver et envoyez le récapitulatif par mail.")
