@@ -370,7 +370,8 @@ def main():
 
     # Tri antéchronologique (plus récent en premier)
     if "date_publication" in df_filtered.columns:
-        df_filtered = df_filtered.sort_values("date_publication", ascending=False).reset_index(drop=True)
+        df_filtered = df_filtered.sort_values("date_publication", ascending=False)
+        df_filtered.index = range(len(df_filtered))  # réindexer proprement
 
     nb = len(df_filtered)
 
@@ -409,9 +410,11 @@ def main():
     # --- Construire la liste des index et gérer l'ordre ---
     article_indices = list(df_filtered.index)
 
-    # Initialiser l'ordre dans session_state
+    # Initialiser l'ordre dans session_state (respecte le tri antéchronologique par défaut)
     order_key = f"order_{selected_week}"
-    if order_key not in st.session_state or set(st.session_state[order_key]) != set(article_indices):
+    # Toujours réinitialiser l'ordre au tri par défaut — le réordonnancement manuel
+    # est appliqué via les boutons ↑↓ et persiste tant qu'on ne recharge pas la page
+    if order_key not in st.session_state:
         st.session_state[order_key] = list(article_indices)
 
     ordered_indices = st.session_state[order_key]
