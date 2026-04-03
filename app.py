@@ -343,6 +343,9 @@ def main():
     col_map = {c: c.lower().strip() for c in df.columns}
     df = df.rename(columns=col_map)
 
+    # DEBUG temporaire — affiche les colonnes pour diagnostic
+    st.caption(f"DEBUG colonnes : {list(df.columns)}")
+
     # --- Filtre semaine + Refresh ---
     weeks = available_weeks(df)
     current = week_label(datetime.now())
