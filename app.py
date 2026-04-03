@@ -24,8 +24,8 @@ SHEET_NAME = "Veille Procivis"
 
 N8N_WEBHOOK_URL = st.secrets.get("N8N_WEBHOOK_URL", "")
 
-DEFAULT_DEST_EMAIL = st.secrets.get("DEFAULT_DEST_EMAIL", "")
-DEFAULT_DEST_NOM = st.secrets.get("DEFAULT_DEST_NOM", "")
+DEFAULT_DEST_EMAIL = st.secrets.get("DEFAULT_DEST_EMAIL", "stephanie@papiersdesoi.fr")
+DEFAULT_DEST_NOM = st.secrets.get("DEFAULT_DEST_NOM", "Stéphanie")
 
 MOTS_CLES = ["Procivis", "Immo de France", "Maisons d'en France", "Yannick Borde"]
 
