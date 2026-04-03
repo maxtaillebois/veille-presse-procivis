@@ -370,8 +370,19 @@ def main():
 
     # Tri antéchronologique (plus récent en premier)
     if "date_publication" in df_filtered.columns:
-        df_filtered = df_filtered.sort_values("date_publication", ascending=False)
-        df_filtered.index = range(len(df_filtered))  # réindexer proprement
+        def parse_date(d):
+            """Parse une date quel que soit le format (YYYY-MM-DD ou DD/MM/YYYY)."""
+            s = str(d).strip()
+            for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"):
+                try:
+                    return datetime.strptime(s, fmt)
+                except (ValueError, TypeError):
+                    continue
+            return datetime.min
+        df_filtered = df_filtered.copy()
+        df_filtered["_sort_date"] = df_filtered["date_publication"].apply(parse_date)
+        df_filtered = df_filtered.sort_values("_sort_date", ascending=False).drop(columns=["_sort_date"])
+        df_filtered.index = range(len(df_filtered))
 
     nb = len(df_filtered)
 
