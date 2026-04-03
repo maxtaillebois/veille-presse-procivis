@@ -106,6 +106,21 @@ def inject_css():
 /* SEND TITLE */
 .send-title {{ color:{VERT_TRES_FONCE}; font-size:1.3rem; font-weight:600; margin-bottom:1rem; }}
 
+/* INPUT LABELS — toujours lisibles */
+.stTextInput label {{
+  color: {VERT_TRES_FONCE} !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
+}}
+.stTextInput label p {{
+  color: {VERT_TRES_FONCE} !important;
+  opacity: 1 !important;
+}}
+.stSelectbox label, .stSelectbox label p {{
+  color: {VERT_TRES_FONCE} !important;
+  opacity: 1 !important;
+}}
+
 /* BUTTONS */
 .stButton>button[kind="primary"] {{
   background:linear-gradient(135deg,{VERT_TRES_FONCE},{VERT_FONCE}) !important;
