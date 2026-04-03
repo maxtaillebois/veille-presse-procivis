@@ -158,6 +158,23 @@ def inject_css():
   background: {BEIGE}; border-left-color: {VERT_GRIS}; color: {VERT_OLIVE};
 }}
 
+/* REORDER BUTTONS */
+.reorder-btn {{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:32px; height:32px; border-radius:8px;
+  border:1.5px solid {VERT_FONCE}; background:white;
+  color:{VERT_FONCE}; font-size:1rem; cursor:pointer;
+  transition: all .15s;
+}}
+.reorder-btn:hover {{ background:{VERT_CLAIR_PALE}; }}
+.reorder-btn.disabled {{ opacity:.25; cursor:default; border-color:{VERT_GRIS}; color:{VERT_GRIS}; }}
+.order-number {{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:28px; height:28px; border-radius:50%;
+  background:{VERT_FONCE}; color:white;
+  font-size:.85rem; font-weight:700;
+}}
+
 /* HIDE BRANDING */
 #MainMenu {{visibility:hidden;}}
 footer {{visibility:hidden;}}
@@ -369,8 +386,15 @@ def main():
         st.info("Aucun article pour cette semaine.")
         return
 
-    # --- Construire la liste des index pour le "Tout sélectionner" ---
+    # --- Construire la liste des index et gérer l'ordre ---
     article_indices = list(df_filtered.index)
+
+    # Initialiser l'ordre dans session_state
+    order_key = f"order_{selected_week}"
+    if order_key not in st.session_state or set(st.session_state[order_key]) != set(article_indices):
+        st.session_state[order_key] = list(article_indices)
+
+    ordered_indices = st.session_state[order_key]
 
     # Callback "Tout sélectionner" : force l'état de chaque checkbox
     def on_select_all_change():
@@ -386,8 +410,9 @@ def main():
 
     selected_articles = []
 
-    # --- Liste des articles ---
-    for idx, row in df_filtered.iterrows():
+    # --- Liste des articles (dans l'ordre choisi) ---
+    for position, idx in enumerate(ordered_indices):
+        row = df_filtered.loc[idx]
         media = col(row, "media", "média")
         titre = col(row, "titre")
         date_pub = col(row, "date_publication", "date publication")
@@ -400,11 +425,32 @@ def main():
         if f"art_{idx}" not in st.session_state:
             st.session_state[f"art_{idx}"] = False
 
-        # Checkbox AU-DESSUS de la carte, avec libellé toujours visible
-        checked = st.checkbox(
-            "Garder cet article",
-            key=f"art_{idx}",
-        )
+        # Ligne : numéro + checkbox + boutons ↑↓
+        col_num, col_check, col_up, col_down = st.columns([0.3, 6, 0.4, 0.4])
+        with col_num:
+            st.markdown(f'<div style="padding-top:6px"><span class="order-number">{position + 1}</span></div>', unsafe_allow_html=True)
+        with col_check:
+            checked = st.checkbox("Garder cet article", key=f"art_{idx}")
+        with col_up:
+            if position > 0:
+                if st.button("↑", key=f"up_{idx}", help="Monter"):
+                    order = st.session_state[order_key]
+                    p = order.index(idx)
+                    order[p], order[p - 1] = order[p - 1], order[p]
+                    st.session_state[order_key] = order
+                    st.rerun()
+            else:
+                st.markdown('<div style="padding-top:6px;opacity:.2;text-align:center">↑</div>', unsafe_allow_html=True)
+        with col_down:
+            if position < len(ordered_indices) - 1:
+                if st.button("↓", key=f"down_{idx}", help="Descendre"):
+                    order = st.session_state[order_key]
+                    p = order.index(idx)
+                    order[p], order[p + 1] = order[p + 1], order[p]
+                    st.session_state[order_key] = order
+                    st.rerun()
+            else:
+                st.markdown('<div style="padding-top:6px;opacity:.2;text-align:center">↓</div>', unsafe_allow_html=True)
 
         # Carte article
         card_html = build_card_html(titre, media, date_pub, resume, mots_cles, contexte, checked)
