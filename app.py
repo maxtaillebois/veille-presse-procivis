@@ -343,9 +343,6 @@ def main():
     col_map = {c: c.lower().strip() for c in df.columns}
     df = df.rename(columns=col_map)
 
-    # DEBUG temporaire — affiche les colonnes pour diagnostic
-    st.caption(f"DEBUG colonnes : {list(df.columns)}")
-
     # --- Filtre semaine + Refresh ---
     weeks = available_weeks(df)
     current = week_label(datetime.now())
@@ -372,7 +369,8 @@ def main():
         df_filtered = df.copy()
 
     # Tri antéchronologique (plus récent en premier)
-    if "date_publication" in df_filtered.columns:
+    date_col = next((c for c in df_filtered.columns if "date" in c.lower()), None)
+    if date_col:
         def parse_date(d):
             """Parse une date quel que soit le format (YYYY-MM-DD ou DD/MM/YYYY)."""
             s = str(d).strip()
@@ -383,7 +381,7 @@ def main():
                     continue
             return datetime.min
         df_filtered = df_filtered.copy()
-        df_filtered["_sort_date"] = df_filtered["date_publication"].apply(parse_date)
+        df_filtered["_sort_date"] = df_filtered[date_col].apply(parse_date)
         df_filtered = df_filtered.sort_values("_sort_date", ascending=False).drop(columns=["_sort_date"])
         df_filtered.index = range(len(df_filtered))
 
