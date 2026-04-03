@@ -26,6 +26,7 @@ N8N_WEBHOOK_URL = st.secrets.get("N8N_WEBHOOK_URL", "")
 
 DEFAULT_DEST_EMAIL = st.secrets.get("DEFAULT_DEST_EMAIL", "stephanie@papiersdesoi.fr")
 DEFAULT_DEST_NOM = st.secrets.get("DEFAULT_DEST_NOM", "Stéphanie")
+DEFAULT_CC_EMAILS = st.secrets.get("DEFAULT_CC_EMAILS", "")
 
 MOTS_CLES = ["Procivis", "Immo de France", "Maisons d'en France", "Yannick Borde"]
 
@@ -497,7 +498,7 @@ def main():
 
     cc_emails = st.text_input(
         "CC (copie carbone)",
-        value="",
+        value=DEFAULT_CC_EMAILS,
         help="Plusieurs adresses possibles, séparées par des virgules",
     )
 
