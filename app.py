@@ -368,6 +368,10 @@ def main():
     else:
         df_filtered = df.copy()
 
+    # Tri antéchronologique (plus récent en premier)
+    if "date_publication" in df_filtered.columns:
+        df_filtered = df_filtered.sort_values("date_publication", ascending=False).reset_index(drop=True)
+
     nb = len(df_filtered)
 
     # Compter les articles avec mots-clés
