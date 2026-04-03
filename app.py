@@ -474,12 +474,17 @@ def main():
     col_dest, col_nom = st.columns(2)
     with col_dest:
         dest_email = st.text_input(
-            "Email(s) du/des destinataire(s)",
+            "Destinataire principal",
             value=DEFAULT_DEST_EMAIL,
-            help="Plusieurs adresses possibles, séparées par des virgules",
         )
     with col_nom:
         dest_nom = st.text_input("Nom du destinataire", value=DEFAULT_DEST_NOM)
+
+    cc_emails = st.text_input(
+        "CC (copie carbone)",
+        value="",
+        help="Plusieurs adresses possibles, séparées par des virgules",
+    )
 
     # Compteur sélection — style custom au lieu du warning illisible
     n_sel = len(selected_articles)
@@ -499,6 +504,7 @@ def main():
         payload = {
             "destinataire_email": dest_email,
             "destinataire_nom": dest_nom,
+            "cc_emails": cc_emails,
             "semaine": selected_week if selected_week != "Toutes" else current,
             "articles_procivis": selected_articles,
         }
