@@ -29,15 +29,18 @@ DEFAULT_DEST_NOM = st.secrets.get("DEFAULT_DEST_NOM", "")
 
 MOTS_CLES = ["Procivis", "Immo de France", "Maisons d'en France", "Yannick Borde"]
 
-# Couleurs de la charte Procivis (sept. 2025)
-VERT_PROCIVIS = "#97C33D"
-VERT_FONCE = "#7AA52E"
-VERT_CLAIR = "#EFF6E0"
-GRIS_PROCIVIS = "#515459"
-GRIS_CLAIR = "#F7F8FA"
-GRIS_TEXTE = "#515459"
-ROSE_BAILLEUR = "#FF3E65"
-BLEU_PROMOTEUR = "#005CCE"
+# Couleurs de la charte Procivis (palette verts)
+VERT_TRES_FONCE = "#303C0A"     # Couleur principale — boutons, hero
+VERT_FONCE = "#36580E"          # Dégradé secondaire
+VERT_FORET = "#182D00"          # Accent très sombre
+VERT_VIF = "#97C11F"            # Vert vif — badges, accents
+VERT_OLIVE = "#6E755A"          # Gris-vert — texte secondaire
+BEIGE = "#F8F3EC"               # Fond de page
+VERT_KAKI = "#6D784B"           # Secondaire — badges alternatifs
+VERT_GRIS = "#878C7A"           # Secondaire — méta
+VERT_CLAIR = "#CFE986"          # Secondaire — fonds légers, sélection
+VERT_CLAIR_PALE = "#EDF5D0"     # Fond très léger pour citations
+GRIS_TEXTE = "#303C0A"          # Texte courant = vert très foncé
 
 
 # ---------------------------------------------------------------------------
@@ -47,111 +50,112 @@ BLEU_PROMOTEUR = "#005CCE"
 def inject_css():
     st.markdown(
         f"""<style>
-.stApp {{ background-color: {GRIS_CLAIR}; }}
+.stApp {{ background-color: {BEIGE}; }}
 
 /* HERO */
 .hero {{
-  background: linear-gradient(135deg, {VERT_PROCIVIS} 0%, {VERT_FONCE} 100%);
+  background: linear-gradient(135deg, {VERT_TRES_FONCE} 0%, {VERT_FONCE} 100%);
   color: white; padding: 2rem 2.5rem; border-radius: 16px;
-  margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(151,195,61,.3);
+  margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(48,60,10,.3);
 }}
 .hero h1 {{ margin:0; font-size:2rem; font-weight:700; }}
-.hero .hero-sub {{ margin:.5rem 0 0; font-size:1rem; opacity:.9; font-weight:300; }}
+.hero .hero-sub {{ margin:.5rem 0 0; font-size:1rem; opacity:.85; font-weight:300; }}
 
 /* STATS */
 .stats-bar {{ display:flex; gap:1rem; margin-bottom:1.5rem; }}
 .stat-card {{
   background:white; border-radius:12px; padding:1rem 1.5rem; flex:1;
-  box-shadow:0 2px 8px rgba(0,0,0,.06); border-left:4px solid {VERT_PROCIVIS};
+  box-shadow:0 2px 8px rgba(0,0,0,.06); border-left:4px solid {VERT_FONCE};
 }}
-.stat-card .stat-number {{ font-size:1.8rem; font-weight:700; color:{VERT_PROCIVIS}; line-height:1; }}
-.stat-card .stat-label {{ font-size:.8rem; color:{GRIS_PROCIVIS}; text-transform:uppercase; letter-spacing:.5px; margin-top:4px; opacity:.7; }}
+.stat-card .stat-number {{ font-size:1.8rem; font-weight:700; color:{VERT_FONCE}; line-height:1; }}
+.stat-card .stat-label {{ font-size:.8rem; color:{VERT_OLIVE}; text-transform:uppercase; letter-spacing:.5px; margin-top:4px; }}
 
 /* ARTICLE CARD */
 .article-card {{
   background:white; border-radius:12px; padding:1.5rem; margin-bottom:.5rem;
-  box-shadow:0 2px 10px rgba(0,0,0,.06); border-left:4px solid {VERT_PROCIVIS};
+  box-shadow:0 2px 10px rgba(0,0,0,.06); border-left:4px solid {VERT_FONCE};
   transition: box-shadow .2s, transform .2s;
 }}
 .article-card:hover {{ box-shadow:0 4px 20px rgba(0,0,0,.1); transform:translateY(-1px); }}
-.article-card.selected {{ border-left-color:{GRIS_PROCIVIS}; background:{VERT_CLAIR}; }}
-.article-title {{ font-size:1.1rem; font-weight:600; color:{GRIS_PROCIVIS}; margin-bottom:6px; line-height:1.3; }}
+.article-card.selected {{ border-left-color:{VERT_VIF}; background:#F4F9E4; }}
+.article-title {{ font-size:1.1rem; font-weight:600; color:{VERT_TRES_FONCE}; margin-bottom:6px; line-height:1.3; }}
 .article-meta {{ display:flex; align-items:center; gap:16px; margin-bottom:10px; flex-wrap:wrap; }}
-.meta-item {{ display:flex; align-items:center; gap:5px; font-size:.85rem; color:#888; }}
+.meta-item {{ display:flex; align-items:center; gap:5px; font-size:.85rem; color:{VERT_GRIS}; }}
 .article-resume {{ font-size:.93rem; color:{GRIS_TEXTE}; line-height:1.6; margin-bottom:10px; }}
-.section-label {{ font-size:.75rem; text-transform:uppercase; letter-spacing:.5px; color:#999; font-weight:600; margin-bottom:4px; margin-top:12px; }}
+.section-label {{ font-size:.75rem; text-transform:uppercase; letter-spacing:.5px; color:{VERT_OLIVE}; font-weight:600; margin-bottom:4px; margin-top:12px; }}
 
 /* BADGES */
 .kw-badges {{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }}
 .kw-badge {{
-  background:{VERT_PROCIVIS}; color:white; padding:4px 12px;
+  background:{VERT_FONCE}; color:white; padding:4px 12px;
   border-radius:20px; font-size:.78rem; font-weight:500; letter-spacing:.3px;
 }}
-.kw-badge.gris {{ background:{GRIS_PROCIVIS}; }}
-.kw-badge.rose {{ background:{ROSE_BAILLEUR}; }}
-.kw-badge.bleu {{ background:{BLEU_PROMOTEUR}; }}
+.kw-badge.gris {{ background:{VERT_KAKI}; }}
+.kw-badge.rose {{ background:{VERT_OLIVE}; }}
+.kw-badge.bleu {{ background:{VERT_TRES_FONCE}; }}
 
 /* CITATIONS dans la carte */
 .citation-block {{
-  background:{VERT_CLAIR}; border-radius:8px; padding:12px 16px;
-  margin:6px 0; border-left:3px solid {VERT_PROCIVIS};
+  background:{VERT_CLAIR_PALE}; border-radius:8px; padding:12px 16px;
+  margin:6px 0; border-left:3px solid {VERT_VIF};
 }}
 .citation-kw {{ font-weight:600; color:{VERT_FONCE}; font-size:.85rem; }}
 .citation-text {{ font-size:.85rem; color:{GRIS_TEXTE}; font-style:italic; margin-top:4px; }}
 .citations-wrapper {{ margin-top:12px; }}
 
 /* SEND TITLE */
-.send-title {{ color:{GRIS_PROCIVIS}; font-size:1.3rem; font-weight:600; margin-bottom:1rem; }}
+.send-title {{ color:{VERT_TRES_FONCE}; font-size:1.3rem; font-weight:600; margin-bottom:1rem; }}
 
 /* BUTTONS */
 .stButton>button[kind="primary"] {{
-  background:linear-gradient(135deg,{VERT_PROCIVIS},{VERT_FONCE});
+  background:linear-gradient(135deg,{VERT_TRES_FONCE},{VERT_FONCE}) !important;
+  color:white !important;
   border:none; border-radius:8px; font-weight:600; padding:.6rem 2rem;
 }}
 .stButton>button[kind="primary"]:hover {{
-  background:linear-gradient(135deg,{VERT_FONCE},#5E8A1E);
-  box-shadow:0 4px 12px rgba(151,195,61,.35);
+  background:linear-gradient(135deg,{VERT_FORET},{VERT_TRES_FONCE}) !important;
+  box-shadow:0 4px 12px rgba(48,60,10,.35);
 }}
 
-/* CHECKBOX — vert Procivis, label toujours lisible */
+/* CHECKBOX — vert foncé Procivis, label toujours lisible */
 .stCheckbox label {{
   font-weight: 500 !important;
-  color: {GRIS_PROCIVIS} !important;
+  color: {VERT_TRES_FONCE} !important;
   opacity: 1 !important;
 }}
 .stCheckbox label span {{
-  color: {GRIS_PROCIVIS} !important;
+  color: {VERT_TRES_FONCE} !important;
   opacity: 1 !important;
 }}
 .stCheckbox label p {{
-  color: {GRIS_PROCIVIS} !important;
+  color: {VERT_TRES_FONCE} !important;
   opacity: 1 !important;
 }}
 /* Boîte de la checkbox */
 .stCheckbox [data-testid="stCheckbox"] > div:first-child {{
-  border-color: {VERT_PROCIVIS} !important;
+  border-color: {VERT_FONCE} !important;
 }}
 .stCheckbox svg {{
-  fill: {VERT_PROCIVIS} !important;
-  color: {VERT_PROCIVIS} !important;
+  fill: {VERT_FONCE} !important;
+  color: {VERT_FONCE} !important;
 }}
 /* Versions récentes Streamlit */
 [data-testid="stCheckbox"] label div[role="checkbox"] {{
-  border-color: {VERT_PROCIVIS} !important;
+  border-color: {VERT_FONCE} !important;
 }}
 [data-testid="stCheckbox"] label div[role="checkbox"][aria-checked="true"] {{
-  background-color: {VERT_PROCIVIS} !important;
-  border-color: {VERT_PROCIVIS} !important;
+  background-color: {VERT_FONCE} !important;
+  border-color: {VERT_FONCE} !important;
 }}
 
 /* Compteur sélection — style unifié */
 .selection-count {{
-  background: {VERT_CLAIR}; border-left: 4px solid {VERT_PROCIVIS};
+  background: {VERT_CLAIR_PALE}; border-left: 4px solid {VERT_FONCE};
   padding: 12px 16px; border-radius: 8px; font-size: .95rem;
-  color: {GRIS_PROCIVIS}; font-weight: 500;
+  color: {VERT_TRES_FONCE}; font-weight: 500;
 }}
 .selection-count.empty {{
-  background: #f0f0f0; border-left-color: #ccc; color: #999;
+  background: {BEIGE}; border-left-color: {VERT_GRIS}; color: {VERT_OLIVE};
 }}
 
 /* HIDE BRANDING */
